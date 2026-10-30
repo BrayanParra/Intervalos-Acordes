@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Brayan Parra - Preparatorio de Música</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+/* ══ TOKENS ══════════════════════════════════════════════ */
+:root {
+  --bg:        #0f1117;
+  --bg2:       #1a1d27;
+  --bg3:       #222638;
+  --border:    #2e3348;
+  --fg:        #e8eaf0;
+  --fg2:       #9aa0b8;
+  --accent:    #7c6af7;
+  --accent2:   #a78bfa;
+  --green:     #34d399;
+  --red:       #f87171;
+  --gold:      #fbbf24;
+  --blue:      #60a5fa;
+  --card-r:    14px;
+  color-scheme: dark;
+}
+
+/* ══ RESET ═══════════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:'Inter',sans-serif;background:var(--bg);color:var(--fg);font-size:15px;line-height:1.5}
+button{font-family:inherit;cursor:pointer;border:none;outline:none}
+input{font-family:inherit;outline:none}
+[hidden]{display:none!important}
+
+/* ══ LAYOUT ══════════════════════════════════════════════ */
+body{display:flex;flex-direction:column;min-height:100vh}
+
+header{
+  background:linear-gradient(135deg,#1a1d27 0%,#222638 100%);
+  border-bottom:1px solid var(--border);
+  padding:16px 20px 14px;
+  text-align:center;
+  position:sticky;top:0;z-index:100;
+}
+header h1{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(1.1rem,3vw,1.45rem);
+  font-weight:700;
+  background:linear-gradient(90deg,var(--accent2),var(--blue));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  letter-spacing:.5px;
+}
+header p{color:var(--fg2);font-size:.78rem;margin-top:2px;letter-spacing:.5px}
+
+/* ── Tab bar ── */
+.tabs{
+  display:flex;gap:4px;padding:12px 16px 0;
+  background:var(--bg2);border-bottom:1px solid var(--border);
+  overflow-x:auto;scrollbar-width:none;
+}
+.tabs::-webkit-scrollbar{display:none}
+.tab-btn{
+  flex:0 0 auto;padding:9px 18px;border-radius:8px 8px 0 0;
+  font-size:.82rem;font-weight:600;letter-spacing:.3px;
+  background:transparent;color:var(--fg2);
+  border:1px solid transparent;border-bottom:none;
+  transition:all .18s;
+}
+.tab-btn:hover{color:var(--fg);background:var(--bg3)}
+.tab-btn.active{background:var(--bg);color:var(--accent2);border-color:var(--border)}
+
+main{flex:1;padding:20px 16px 40px;max-width:820px;margin:0 auto;width:100%}
+
+/* ── Section panels ── */
+.panel{display:none;animation:fadeIn .22s ease}
+.panel.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ── Card ── */
+.card{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:var(--card-r);padding:22px 20px;margin-bottom:16px;
+}
+.card-title{
+  font-size:.72rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  color:var(--accent2);margin-bottom:14px;
+}
+
+/* ── Mode selector ── */
+.mode-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.mode-btn{
+  flex:1;min-width:110px;padding:10px 14px;border-radius:10px;
+  background:var(--bg3);border:2px solid var(--border);
+  color:var(--fg2);font-size:.82rem;font-weight:600;
+  transition:all .18s;text-align:center;
+}
+.mode-btn:hover{border-color:var(--accent);color:var(--fg)}
+.mode-btn.active{background:#2d2a5e;border-color:var(--accent);color:var(--accent2)}
+
+/* ── Big play button ── */
+.play-btn{
+  width:100%;padding:16px;border-radius:12px;
+  background:linear-gradient(135deg,var(--accent),#5b4fd4);
+  color:#fff;font-size:1rem;font-weight:700;letter-spacing:.5px;
+  transition:all .18s;margin-bottom:14px;
+  box-shadow:0 4px 20px #7c6af740;
+}
+.play-btn:hover{transform:translateY(-1px);box-shadow:0 6px 28px #7c6af760}
+.play-btn:active{transform:none}
+.play-btn:disabled{opacity:.5;transform:none;cursor:default}
+
+/* ── Answer grid ── */
+.answers{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:9px;margin-bottom:14px}
+.ans-btn{
+  padding:13px 10px;border-radius:10px;
+  background:var(--bg3);border:2px solid var(--border);
+  color:var(--fg);font-size:.85rem;font-weight:500;
+  transition:all .16s;text-align:center;
+}
+.ans-btn:hover:not(:disabled){border-color:var(--accent);background:#2d2a5e;color:var(--accent2)}
+.ans-btn.correct{background:#1a4d38;border-color:var(--green);color:var(--green)}
+.ans-btn.wrong{background:#4a1a1a;border-color:var(--red);color:var(--red)}
+.ans-btn:disabled{cursor:default}
+
+/* ── Feedback ── */
+.feedback{
+  text-align:center;padding:13px;border-radius:10px;
+  font-weight:600;font-size:.95rem;margin-bottom:12px;
+  animation:pop .18s ease;
+}
+@keyframes pop{from{transform:scale(.95)}to{transform:scale(1)}}
+.feedback.ok{background:#1a4d3880;color:var(--green);border:1px solid var(--green)}
+.feedback.fail{background:#4a1a1a80;color:var(--red);border:1px solid var(--red)}
+
+/* ── Score bar ── */
+.score-row{
+  display:flex;gap:12px;align-items:center;
+  background:var(--bg3);border-radius:10px;padding:10px 16px;
+  font-size:.85rem;
+}
+.score-row span{color:var(--fg2)}
+.score-row strong{color:var(--fg);font-size:1rem}
+.stat{display:flex;flex-direction:column;align-items:center;gap:1px}
+.stat-val{font-size:1.3rem;font-weight:700}
+.stat-lbl{font-size:.68rem;color:var(--fg2);text-transform:uppercase;letter-spacing:.5px}
+.green{color:var(--green)} .red{color:var(--red)} .gold{color:var(--gold)}
+
+/* ── Info box ── */
+.info-box{
+  background:var(--bg3);border-left:3px solid var(--accent);
+  border-radius:0 10px 10px 0;padding:12px 14px;
+  font-size:.82rem;color:var(--fg2);margin-bottom:12px;line-height:1.55;
+}
+.info-box strong{color:var(--fg)}
+
+/* ── Reference table ── */
+.ref-table{width:100%;border-collapse:collapse;font-size:.8rem}
+.ref-table th,.ref-table td{padding:7px 10px;text-align:left;border-bottom:1px solid var(--border)}
+.ref-table th{color:var(--accent2);font-weight:600;font-size:.72rem;letter-spacing:.5px;text-transform:uppercase}
+.ref-table tr:last-child td{border-bottom:none}
+.ref-table td:nth-child(2){color:var(--fg2)}
+.ref-table td:first-child{font-weight:600}
+.badge{
+  display:inline-block;padding:2px 7px;border-radius:99px;
+  font-size:.68rem;font-weight:700;
+}
+.badge-p{background:#2d2a5e;color:var(--accent2)}
+.badge-m{background:#1a3a4a;color:var(--blue)}
+.badge-d{background:#3a1a1a;color:var(--red)}
+
+/* ── Tone indicator ── */
+.tone-display{
+  text-align:center;font-family:'Playfair Display',serif;
+  font-size:2.4rem;font-weight:700;color:var(--accent2);
+  padding:14px 0 8px;letter-spacing:2px;
+  min-height:70px;display:flex;align-items:center;justify-content:center;
+}
+
+/* ── Progress bar ── */
+.progress-wrap{background:var(--bg3);border-radius:99px;height:6px;margin-bottom:16px;overflow:hidden}
+.progress-bar{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--accent),var(--blue));transition:width .4s}
+
+/* ── Next btn ── */
+.next-btn{
+  width:100%;padding:12px;border-radius:10px;
+  background:var(--bg3);border:2px solid var(--border);
+  color:var(--fg2);font-size:.88rem;font-weight:600;
+  transition:all .18s;
+}
+.next-btn:hover{border-color:var(--accent2);color:var(--accent2)}
+
+/* ── Waveform visual ── */
+.wave-area{
+  height:52px;display:flex;align-items:center;justify-content:center;gap:3px;
+  margin-bottom:10px;
+}
+.wave-bar{
+  width:4px;border-radius:99px;background:var(--accent);
+  transition:height .1s;
+}
+
+/* ── Chord symbol ── */
+.chord-symbol{
+  font-family:'Playfair Display',serif;font-size:3rem;font-weight:700;
+  text-align:center;padding:10px 0 4px;color:var(--gold);
+  min-height:76px;display:flex;align-items:center;justify-content:center;
+}
+
+/* ── Responsive ── */
+@media(max-width:500px){
+  .answers{grid-template-columns:1fr 1fr}
+  .mode-row{flex-direction:column}
+  .mode-btn{min-width:unset}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🎵 Brayan Parra — Preparatorio de Música</h1>
+  <p>Práctica interactiva de intervalos y acordes</p>
+</header>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="showTab('intervalos')">Intervalos</button>
+  <button class="tab-btn" onclick="showTab('acordes')">Acordes</button>
+  <button class="tab-btn" onclick="showTab('referencia')">Referencia</button>
+</div>
+
+<main>
+
+<!-- ══════════════════════════════════════════════════════
+     PANEL: INTERVALOS
+════════════════════════════════════════════════════════ -->
+<div id="panel-intervalos" class="panel active">
+
+  <!-- Modo -->
+  <div class="card">
+    <div class="card-title">Modo de práctica</div>
+    <div class="mode-row">
+      <button class="mode-btn active" id="im-teo" onclick="setIntervalMode('teo')">📖 Teórico</button>
+      <button class="mode-btn" id="im-mel" onclick="setIntervalMode('mel')">🎵 Auditivo melódico</button>
+      <button class="mode-btn" id="im-arm" onclick="setIntervalMode('arm')">🎶 Auditivo armónico</button>
+    </div>
+
+    <!-- Teórico -->
+    <div id="imode-teo">
+      <div class="info-box" id="iteo-info">
+        Pulsa <strong>Nueva pregunta</strong> para comenzar.<br>
+        Identifica el intervalo entre las dos notas indicadas.
+      </div>
+      <div class="tone-display" id="iteo-notes">—</div>
+      <button class="play-btn" onclick="newIntervalTeo()">Nueva pregunta</button>
+      <div class="answers" id="iteo-answers"></div>
+      <div id="iteo-fb" hidden></div>
+    </div>
+
+    <!-- Auditivo -->
+    <div id="imode-aud" hidden>
+      <div class="info-box">
+        Escucha el intervalo y selecciona cuál es.<br>
+        <strong id="iaud-kind-label">Melódico</strong>: las notas suenan una tras otra.
+      </div>
+      <div class="wave-area" id="iaud-wave"></div>
+      <button class="play-btn" id="iaud-play-btn" onclick="playAndAskInterval()">▶ Reproducir intervalo</button>
+      <div class="answers" id="iaud-answers"></div>
+      <div id="iaud-fb" hidden></div>
+      <button class="next-btn" id="iaud-next" hidden onclick="playAndAskInterval()">Siguiente →</button>
+    </div>
+  </div>
+
+  <!-- Score intervalos -->
+  <div class="card">
+    <div class="card-title">Progreso — Intervalos</div>
+    <div class="score-row">
+      <div class="stat"><span class="stat-val green" id="i-ok">0</span><span class="stat-lbl">Correctas</span></div>
+      <div class="stat"><span class="stat-val red" id="i-err">0</span><span class="stat-lbl">Errores</span></div>
+      <div class="stat"><span class="stat-val gold" id="i-pct">—</span><span class="stat-lbl">Precisión</span></div>
+      <button style="margin-left:auto;padding:6px 14px;border-radius:8px;background:var(--bg3);border:1px solid var(--border);color:var(--fg2);font-size:.78rem;font-weight:600" onclick="resetScore('i')">Reset</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     PANEL: ACORDES
+════════════════════════════════════════════════════════ -->
+<div id="panel-acordes" class="panel">
+
+  <div class="card">
+    <div class="card-title">Modo de práctica</div>
+    <div class="mode-row">
+      <button class="mode-btn active" id="am-teo" onclick="setChordMode('teo')">📖 Teórico</button>
+      <button class="mode-btn" id="am-aud" onclick="setChordMode('aud')">🔊 Auditivo</button>
+    </div>
+
+    <!-- Teórico acordes -->
+    <div id="amode-teo">
+      <div class="info-box">
+        Se te muestra la <strong>nota raíz</strong> y el <strong>tipo de acorde</strong>.<br>
+        Identifica cuáles son las notas que lo componen.
+      </div>
+      <div class="chord-symbol" id="ateo-symbol">—</div>
+      <div id="ateo-question" style="text-align:center;color:var(--fg2);font-size:.9rem;margin-bottom:12px"></div>
+      <button class="play-btn" onclick="newChordTeo()">Nueva pregunta</button>
+      <div class="answers" id="ateo-answers"></div>
+      <div id="ateo-fb" hidden></div>
+    </div>
+
+    <!-- Auditivo acordes -->
+    <div id="amode-aud" hidden>
+      <div class="info-box">
+        Escucha el acorde y selecciona su <strong>tipo</strong>.<br>
+        El acorde se toca simultáneamente (armónico).
+      </div>
+      <div class="wave-area" id="aaud-wave"></div>
+      <button class="play-btn" id="aaud-play-btn" onclick="playAndAskChord()">▶ Reproducir acorde</button>
+      <div class="answers" id="aaud-answers"></div>
+      <div id="aaud-fb" hidden></div>
+      <button class="next-btn" id="aaud-next" hidden onclick="playAndAskChord()">Siguiente →</button>
+    </div>
+  </div>
+
+  <!-- Score acordes -->
+  <div class="card">
+    <div class="card-title">Progreso — Acordes</div>
+    <div class="score-row">
+      <div class="stat"><span class="stat-val green" id="a-ok">0</span><span class="stat-lbl">Correctas</span></div>
+      <div class="stat"><span class="stat-val red" id="a-err">0</span><span class="stat-lbl">Errores</span></div>
+      <div class="stat"><span class="stat-val gold" id="a-pct">—</span><span class="stat-lbl">Precisión</span></div>
+      <button style="margin-left:auto;padding:6px 14px;border-radius:8px;background:var(--bg3);border:1px solid var(--border);color:var(--fg2);font-size:.78rem;font-weight:600" onclick="resetScore('a')">Reset</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     PANEL: REFERENCIA
+════════════════════════════════════════════════════════ -->
+<div id="panel-referencia" class="panel">
+
+  <div class="card">
+    <div class="card-title">Tabla de intervalos</div>
+    <div style="overflow-x:auto">
+    <table class="ref-table">
+      <thead><tr><th>Intervalo</th><th>Semitonos</th><th>Tipo</th><th>Ejemplo</th></tr></thead>
+      <tbody>
+        <tr><td>2ª menor</td><td>1</td><td><span class="badge badge-d">Disonante</span></td><td>Do – Re♭</td></tr>
+        <tr><td>2ª mayor</td><td>2</td><td><span class="badge badge-d">Disonante</span></td><td>Do – Re</td></tr>
+        <tr><td>3ª menor</td><td>3</td><td><span class="badge badge-m">Consonante imp.</span></td><td>Do – Mi♭</td></tr>
+        <tr><td>3ª mayor</td><td>4</td><td><span class="badge badge-m">Consonante imp.</span></td><td>Do – Mi</td></tr>
+        <tr><td>4ª justa</td><td>5</td><td><span class="badge badge-p">Consonante perf.</span></td><td>Do – Fa</td></tr>
+        <tr><td>4ª aumentada / 5ª dis.</td><td>6</td><td><span class="badge badge-d">Tritono</span></td><td>Do – Fa♯</td></tr>
+        <tr><td>5ª justa</td><td>7</td><td><span class="badge badge-p">Consonante perf.</span></td><td>Do – Sol</td></tr>
+        <tr><td>5ª aumentada / 6ª men.</td><td>8</td><td><span class="badge badge-d">Disonante</span></td><td>Do – La♭</td></tr>
+        <tr><td>6ª mayor</td><td>9</td><td><span class="badge badge-m">Consonante imp.</span></td><td>Do – La</td></tr>
+        <tr><td>7ª menor</td><td>10</td><td><span class="badge badge-d">Disonante</span></td><td>Do – Si♭</td></tr>
+        <tr><td>7ª mayor</td><td>11</td><td><span class="badge badge-d">Disonante</span></td><td>Do – Si</td></tr>
+        <tr><td>Octava justa</td><td>12</td><td><span class="badge badge-p">Consonante perf.</span></td><td>Do – Do</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Tabla de acordes (tríadas + dominante)</div>
+    <div style="overflow-x:auto">
+    <table class="ref-table">
+      <thead><tr><th>Tipo</th><th>Intervalos</th><th>Símbolo</th><th>Ejemplo en Do</th></tr></thead>
+      <tbody>
+        <tr><td>Mayor</td><td>3M + 3m (5J)</td><td>C, C maj</td><td>Do – Mi – Sol</td></tr>
+        <tr><td>Menor</td><td>3m + 3M (5J)</td><td>Cm, C min</td><td>Do – Mi♭ – Sol</td></tr>
+        <tr><td>Disminuido</td><td>3m + 3m (5dis)</td><td>C°, C dim</td><td>Do – Mi♭ – Sol♭</td></tr>
+        <tr><td>Aumentado</td><td>3M + 3M (5aum)</td><td>C+, C aug</td><td>Do – Mi – Sol♯</td></tr>
+        <tr><td>Dominante 7</td><td>3M + 3m + 3m (V7)</td><td>C7, C dom7</td><td>Do – Mi – Sol – Si♭</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Inversiones de intervalos</div>
+    <div class="info-box" style="margin-bottom:0">
+      <strong>Regla:</strong> Intervalo + Inversión = 9<br>
+      <strong>Regla de calidad:</strong> Mayor ↔ Menor · Disminuido ↔ Aumentado · Justa ↔ Justa<br><br>
+      2ª menor → 7ª mayor · 2ª mayor → 7ª menor · 3ª menor → 6ª mayor<br>
+      3ª mayor → 6ª menor · 4ª justa → 5ª justa · 4ª aum → 5ª dis
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+/* ══════════════════════════════════════════════════════════
+   AUDIO ENGINE (Web Audio API)
+══════════════════════════════════════════════════════════ */
+let AC = null;
+function getAC(){
+  if(!AC) AC = new (window.AudioContext||window.webkitAudioContext)();
+  if(AC.state==='suspended') AC.resume();
+  return AC;
+}
+
+function midi2hz(m){ return 440*Math.pow(2,(m-69)/12); }
+
+function playNote(midiNote, startTime, duration=0.9, vol=0.38){
+  const ac = getAC();
+  const osc = ac.createOscillator();
+  const gain = ac.createGain();
+  osc.connect(gain); gain.connect(ac.destination);
+  osc.type = 'triangle';
+  osc.frequency.value = midi2hz(midiNote);
+  gain.gain.setValueAtTime(0,startTime);
+  gain.gain.linearRampToValueAtTime(vol, startTime+0.02);
+  gain.gain.exponentialRampToValueAtTime(0.001, startTime+duration);
+  osc.start(startTime);
+  osc.stop(startTime+duration+0.05);
+}
+
+function playMelodic(notes, spacing=0.55){
+  const ac = getAC();
+  const t = ac.currentTime + 0.05;
+  notes.forEach((n,i) => playNote(n, t + i*spacing));
+  return t + notes.length*spacing;
+}
+
+function playHarmonic(notes){
+  const ac = getAC();
+  const t = ac.currentTime + 0.05;
+  notes.forEach(n => playNote(n, t, 1.6, 0.22));
+  return t + 1.65;
+}
+
+function playChordSound(root, type){
+  const offsets = {
+    'Mayor':       [0,4,7],
+    'Menor':       [0,3,7],
+    'Disminuido':  [0,3,6],
+    'Aumentado':   [0,4,8],
+    'Dominante 7': [0,4,7,10],
+  };
+  const notes = (offsets[type]||[0,4,7]).map(o=>root+o);
+  return playHarmonic(notes);
+}
+
+/* waveform animation */
+function animateWave(containerId, duration=1400){
+  const wrap = document.getElementById(containerId);
+  wrap.innerHTML='';
+  const bars=10;
+  for(let i=0;i<bars;i++){
+    const b=document.createElement('div');
+    b.className='wave-bar';
+    b.style.height='6px';
+    wrap.appendChild(b);
+  }
+  let frame;
+  const start=Date.now();
+  const tick=()=>{
+    const elapsed=Date.now()-start;
+    if(elapsed>duration){ wrap.querySelectorAll('.wave-bar').forEach(b=>b.style.height='6px'); return; }
+    wrap.querySelectorAll('.wave-bar').forEach((b,i)=>{
+      const h=8+Math.abs(Math.sin(elapsed/80+i*0.7))*36;
+      b.style.height=h+'px';
+    });
+    frame=requestAnimationFrame(tick);
+  };
+  tick();
+}
+
+/* ══════════════════════════════════════════════════════════
+   DATA
+══════════════════════════════════════════════════════════ */
+const NOTES_NAMES = ['Do','Do♯','Re','Re♯','Mi','Fa','Fa♯','Sol','Sol♯','La','La♭→','Si♭','Si'];
+const NOTE_DISPLAY = {
+  0:'Do',1:'Do♯/Re♭',2:'Re',3:'Re♯/Mi♭',4:'Mi',5:'Fa',
+  6:'Fa♯/Sol♭',7:'Sol',8:'Sol♯/La♭',9:'La',10:'La♯/Si♭',11:'Si'
+};
+
+const INTERVALS = [
+  {name:'2ª menor',   semi:1},
+  {name:'2ª mayor',   semi:2},
+  {name:'3ª menor',   semi:3},
+  {name:'3ª mayor',   semi:4},
+  {name:'4ª justa',   semi:5},
+  {name:'4ª aum/5ª dis',semi:6},
+  {name:'5ª justa',   semi:7},
+  {name:'6ª menor',   semi:8},
+  {name:'6ª mayor',   semi:9},
+  {name:'7ª menor',   semi:10},
+  {name:'7ª mayor',   semi:11},
+  {name:'Octava justa',semi:12},
+];
+
+const CHORD_TYPES = ['Mayor','Menor','Disminuido','Aumentado','Dominante 7'];
+const CHORD_SYMBOLS = {
+  'Mayor':'maj','Menor':'m','Disminuido':'°','Aumentado':'+','Dominante 7':'7'
+};
+
+// Notes for theoretical questions (nice note names)
+const NICE_NOTES = [
+  {name:'Do', midi:60},{name:'Re', midi:62},{name:'Mi', midi:64},
+  {name:'Fa', midi:65},{name:'Sol',midi:67},{name:'La', midi:69},
+  {name:'Si', midi:71},{name:'Do♯',midi:61},{name:'Re♯',midi:63},
+  {name:'Fa♯',midi:66},{name:'Sol♯',midi:68},{name:'La♯',midi:70},
+];
+
+// Note roots for chords
+const ROOT_MIDI_BASE = 60; // C4
+
+/* ══════════════════════════════════════════════════════════
+   STATE
+══════════════════════════════════════════════════════════ */
+let iMode = 'teo';   // intervalos mode
+let aMode = 'teo';   // acordes mode
+
+let iScore = {ok:0, err:0};
+let aScore = {ok:0, err:0};
+
+// Current questions
+let curInterval = null;   // {semi, name, noteA, noteB, midiA, midiB}
+let curIntervalAud = null;
+let curChordTeo  = null;  // {root, type, notes[]}
+let curChordAud  = null;
+
+/* ══════════════════════════════════════════════════════════
+   TABS
+══════════════════════════════════════════════════════════ */
+function showTab(tab){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('panel-'+tab).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+/* ══════════════════════════════════════════════════════════
+   INTERVALOS — TEÓRICO
+══════════════════════════════════════════════════════════ */
+// Pre-compute valid pairs
+function randomIntervalTeo(){
+  const ivl = INTERVALS[Math.floor(Math.random()*INTERVALS.length)];
+  const rootIdx = Math.floor(Math.random()*NICE_NOTES.length);
+  const rootNote = NICE_NOTES[rootIdx];
+  const targetMidi = rootNote.midi + ivl.semi;
+  // find name of target
+  const targetPc = ((targetMidi-60)%12+12)%12;
+  const targetName = NOTE_DISPLAY[targetPc] || '?';
+  return {
+    semi: ivl.semi, name: ivl.name,
+    noteA: rootNote.name, noteB: targetName,
+    midiA: rootNote.midi, midiB: targetMidi,
+  };
+}
+
+function newIntervalTeo(){
+  curInterval = randomIntervalTeo();
+  document.getElementById('iteo-notes').textContent = curInterval.noteA + ' — ' + curInterval.noteB;
+  document.getElementById('iteo-info').innerHTML =
+    'Identifica el intervalo entre <strong>'+curInterval.noteA+'</strong> y <strong>'+curInterval.noteB+'</strong>';
+
+  // Shuffle answers: correct + 3 distractors
+  const correct = curInterval.name;
+  const pool = INTERVALS.map(i=>i.name).filter(n=>n!==correct);
+  shuffle(pool);
+  const opts = shuffle([correct, ...pool.slice(0,3)]);
+
+  const container = document.getElementById('iteo-answers');
+  container.innerHTML='';
+  opts.forEach(opt=>{
+    const b = document.createElement('button');
+    b.className='ans-btn';
+    b.textContent=opt;
+    b.onclick=()=>checkIntervalTeo(opt,correct,b,container);
+    container.appendChild(b);
+  });
+  document.getElementById('iteo-fb').hidden=true;
+}
+
+function checkIntervalTeo(chosen, correct, btn, container){
+  container.querySelectorAll('.ans-btn').forEach(b=>{
+    b.disabled=true;
+    if(b.textContent===correct) b.classList.add('correct');
+  });
+  const fb = document.getElementById('iteo-fb');
+  if(chosen===correct){
+    btn.classList.add('correct');
+    showFeedback(fb, true, '✓ ¡Correcto! '+correct);
+    iScore.ok++;
+  } else {
+    btn.classList.add('wrong');
+    showFeedback(fb, false, '✗ Era: '+correct);
+    iScore.err++;
+  }
+  updateScore('i');
+  fb.hidden=false;
+}
+
+/* ══════════════════════════════════════════════════════════
+   INTERVALOS — AUDITIVO
+══════════════════════════════════════════════════════════ */
+function setIntervalMode(mode){
+  iMode = mode;
+  ['teo','mel','arm'].forEach(m=>{
+    document.getElementById('im-'+m).classList.toggle('active',m===mode);
+  });
+  document.getElementById('imode-teo').hidden=(mode!=='teo');
+  document.getElementById('imode-aud').hidden=(mode==='teo');
+  if(mode==='mel') document.getElementById('iaud-kind-label').textContent='Melódico';
+  if(mode==='arm') document.getElementById('iaud-kind-label').textContent='Armónico';
+  document.getElementById('iaud-answers').innerHTML='';
+  document.getElementById('iaud-fb').hidden=true;
+  document.getElementById('iaud-next').hidden=true;
+  curIntervalAud=null;
+}
+
+function playAndAskInterval(){
+  // pick random interval
+  const ivl = INTERVALS[Math.floor(Math.random()*INTERVALS.length)];
+  const rootMidi = 60 + Math.floor(Math.random()*8); // C4..G4
+  const targetMidi = rootMidi + ivl.semi;
+  curIntervalAud = {name: ivl.name, semi: ivl.semi, midiA: rootMidi, midiB: targetMidi};
+
+  const btn = document.getElementById('iaud-play-btn');
+  btn.disabled=true;
+
+  const duration = iMode==='mel' ? 1400 : 1800;
+  animateWave('iaud-wave', duration);
+
+  if(iMode==='mel'){
+    playMelodic([rootMidi, targetMidi], 0.6);
+  } else {
+    playHarmonic([rootMidi, targetMidi]);
+  }
+
+  setTimeout(()=>{ btn.disabled=false; }, duration+200);
+
+  // Build answer options
+  const correct = ivl.name;
+  const pool = INTERVALS.map(i=>i.name).filter(n=>n!==correct);
+  shuffle(pool);
+  const opts = shuffle([correct,...pool.slice(0,3)]);
+
+  const container = document.getElementById('iaud-answers');
+  container.innerHTML='';
+  opts.forEach(opt=>{
+    const b=document.createElement('button');
+    b.className='ans-btn';
+    b.textContent=opt;
+    b.onclick=()=>checkIntervalAud(opt,correct,b,container);
+    container.appendChild(b);
+  });
+  document.getElementById('iaud-fb').hidden=true;
+  document.getElementById('iaud-next').hidden=true;
+}
+
+function checkIntervalAud(chosen, correct, btn, container){
+  container.querySelectorAll('.ans-btn').forEach(b=>{
+    b.disabled=true;
+    if(b.textContent===correct) b.classList.add('correct');
+  });
+  const fb = document.getElementById('iaud-fb');
+  if(chosen===correct){
+    btn.classList.add('correct');
+    showFeedback(fb, true, '✓ ¡Correcto! '+correct);
+    iScore.ok++;
+  } else {
+    btn.classList.add('wrong');
+    showFeedback(fb, false, '✗ Era: '+correct);
+    iScore.err++;
+  }
+  updateScore('i');
+  fb.hidden=false;
+  document.getElementById('iaud-next').hidden=false;
+
+  // replay correct
+  setTimeout(()=>{
+    if(iMode==='mel') playMelodic([curIntervalAud.midiA,curIntervalAud.midiB],0.6);
+    else playHarmonic([curIntervalAud.midiA,curIntervalAud.midiB]);
+  },400);
+}
+
+/* ══════════════════════════════════════════════════════════
+   ACORDES — TEÓRICO
+══════════════════════════════════════════════════════════ */
+const CHORD_OFFSETS = {
+  'Mayor':       [0,4,7],
+  'Menor':       [0,3,7],
+  'Disminuido':  [0,3,6],
+  'Aumentado':   [0,4,8],
+  'Dominante 7': [0,4,7,10],
+};
+
+function noteNameFromMidi(midi){
+  const pc = ((midi-60)%12+12)%12;
+  return NOTE_DISPLAY[pc]||'?';
+}
+
+// Theoretical chord: give root+type, ask which notes
+// OR: give notes, ask what type
+// We'll alternate
+let chordTeoVariant = 0;
+
+function newChordTeo(){
+  chordTeoVariant = (chordTeoVariant+1)%2;
+  const typeIdx = Math.floor(Math.random()*CHORD_TYPES.length);
+  const type = CHORD_TYPES[typeIdx];
+  const rootIdx = Math.floor(Math.random()*NICE_NOTES.length);
+  const root = NICE_NOTES[rootIdx];
+  const offsets = CHORD_OFFSETS[type];
+  const midiNotes = offsets.map(o=>root.midi+o);
+  const noteNames = midiNotes.map(noteNameFromMidi);
+  curChordTeo = {type, root, midiNotes, noteNames};
+
+  const sym = document.getElementById('ateo-symbol');
+  const qDiv = document.getElementById('ateo-question');
+  const container = document.getElementById('ateo-answers');
+  document.getElementById('ateo-fb').hidden=true;
+  container.innerHTML='';
+
+  if(chordTeoVariant===0){
+    // Given: root + type → identify notes
+    sym.textContent = root.name + (CHORD_SYMBOLS[type]||'');
+    qDiv.textContent = '¿Cuáles son las notas del acorde de '+root.name+' '+type+'?';
+
+    // Build 4 options (sets of note names)
+    const correct = noteNames.join(' – ');
+    const wrongs = generateWrongChords(type, root.midi).map(n=>n.join(' – '));
+    const opts = shuffle([correct, ...wrongs.slice(0,3)]);
+    opts.forEach(opt=>{
+      const b=document.createElement('button');
+      b.className='ans-btn';
+      b.style.fontSize='.8rem';
+      b.textContent=opt;
+      b.onclick=()=>checkChordTeo(opt,correct,b,container,'a');
+      container.appendChild(b);
+    });
+
+  } else {
+    // Given: notes → identify type
+    sym.textContent = root.name+' ?';
+    qDiv.textContent = 'Notas: ' + noteNames.join(' – ') + ' → ¿Qué tipo de acorde es?';
+    const correct = type;
+    const pool = CHORD_TYPES.filter(t=>t!==correct);
+    shuffle(pool);
+    const opts = shuffle([correct,...pool.slice(0,3)]);
+    opts.forEach(opt=>{
+      const b=document.createElement('button');
+      b.className='ans-btn';
+      b.textContent=opt;
+      b.onclick=()=>checkChordTeo(opt,correct,b,container,'a');
+      container.appendChild(b);
+    });
+  }
+}
+
+function generateWrongChords(correctType, rootMidi){
+  return CHORD_TYPES
+    .filter(t=>t!==correctType)
+    .map(t=>(CHORD_OFFSETS[t]||[]).map(o=>{
+      const pc=((rootMidi+o-60)%12+12)%12;
+      return NOTE_DISPLAY[pc]||'?';
+    }));
+}
+
+function checkChordTeo(chosen, correct, btn, container, scoreKey){
+  container.querySelectorAll('.ans-btn').forEach(b=>{
+    b.disabled=true;
+    if(b.textContent===correct) b.classList.add('correct');
+  });
+  const fb = document.getElementById('ateo-fb');
+  if(chosen===correct){
+    btn.classList.add('correct');
+    showFeedback(fb, true, '✓ ¡Correcto!');
+    aScore.ok++;
+    // Play the chord
+    setTimeout(()=>playChordSound(curChordTeo.midiNotes[0], curChordTeo.type), 300);
+  } else {
+    btn.classList.add('wrong');
+    showFeedback(fb, false, '✗ Era: '+correct);
+    aScore.err++;
+  }
+  updateScore('a');
+  fb.hidden=false;
+}
+
+/* ══════════════════════════════════════════════════════════
+   ACORDES — AUDITIVO
+══════════════════════════════════════════════════════════ */
+function setChordMode(mode){
+  aMode=mode;
+  ['teo','aud'].forEach(m=>{
+    document.getElementById('am-'+m).classList.toggle('active',m===mode);
+  });
+  document.getElementById('amode-teo').hidden=(mode!=='teo');
+  document.getElementById('amode-aud').hidden=(mode!=='aud');
+  document.getElementById('aaud-answers').innerHTML='';
+  document.getElementById('aaud-fb').hidden=true;
+  document.getElementById('aaud-next').hidden=true;
+  curChordAud=null;
+}
+
+function playAndAskChord(){
+  const typeIdx = Math.floor(Math.random()*CHORD_TYPES.length);
+  const type = CHORD_TYPES[typeIdx];
+  const rootMidi = 60 + Math.floor(Math.random()*8);
+  curChordAud = {type, rootMidi};
+
+  const btn = document.getElementById('aaud-play-btn');
+  btn.disabled=true;
+  animateWave('aaud-wave', 2000);
+  playChordSound(rootMidi, type);
+  setTimeout(()=>{btn.disabled=false;},2100);
+
+  const correct = type;
+  const pool = CHORD_TYPES.filter(t=>t!==correct);
+  shuffle(pool);
+  const opts = shuffle([correct,...pool.slice(0,3)]);
+
+  const container = document.getElementById('aaud-answers');
+  container.innerHTML='';
+  opts.forEach(opt=>{
+    const b=document.createElement('button');
+    b.className='ans-btn';
+    b.textContent=opt;
+    b.onclick=()=>checkChordAud(opt,correct,b,container);
+    container.appendChild(b);
+  });
+  document.getElementById('aaud-fb').hidden=true;
+  document.getElementById('aaud-next').hidden=true;
+}
+
+function checkChordAud(chosen, correct, btn, container){
+  container.querySelectorAll('.ans-btn').forEach(b=>{
+    b.disabled=true;
+    if(b.textContent===correct) b.classList.add('correct');
+  });
+  const fb = document.getElementById('aaud-fb');
+  if(chosen===correct){
+    btn.classList.add('correct');
+    showFeedback(fb, true, '✓ ¡Correcto! — Acorde '+correct);
+    aScore.ok++;
+  } else {
+    btn.classList.add('wrong');
+    showFeedback(fb, false, '✗ Era: '+correct);
+    aScore.err++;
+  }
+  updateScore('a');
+  fb.hidden=false;
+  document.getElementById('aaud-next').hidden=false;
+  // replay
+  setTimeout(()=>playChordSound(curChordAud.rootMidi, curChordAud.type), 500);
+}
+
+/* ══════════════════════════════════════════════════════════
+   HELPERS
+══════════════════════════════════════════════════════════ */
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  return arr;
+}
+
+function showFeedback(el, ok, msg){
+  el.className='feedback '+(ok?'ok':'fail');
+  el.textContent=msg;
+  el.hidden=false;
+}
+
+function updateScore(key){
+  const s = key==='i'?iScore:aScore;
+  document.getElementById(key+'-ok').textContent=s.ok;
+  document.getElementById(key+'-err').textContent=s.err;
+  const total=s.ok+s.err;
+  document.getElementById(key+'-pct').textContent=total?Math.round(s.ok/total*100)+'%':'—';
+}
+
+function resetScore(key){
+  if(key==='i') iScore={ok:0,err:0};
+  else aScore={ok:0,err:0};
+  updateScore(key);
+}
+</script>
+</body>
+</html>
